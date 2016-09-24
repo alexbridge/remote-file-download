@@ -27,8 +27,8 @@ class FilesDownloader
 
     /**
      * FilesDownloader constructor.
-     * @param $source
-     * @param $destination
+     * @param string|resource $source
+     * @param string|resource $destination
      */
     public function __construct($source, $destination)
     {
@@ -54,20 +54,26 @@ class FilesDownloader
 
     public function download()
     {
-        $source = fopen($this->source, 'rb');
-        if (!$source) {
-            throw new Exception('Can not open source file for read');
-        }
-
-        if(!file_exists($this->destination)) {
-            if(!touch($this->destination)) {
-                throw new Exception('Destination file is not reachable');
+        $source = $this->source;
+        if(!is_resource($this->source)) {
+            $source = fopen($this->source, 'rb');
+            if (!$source) {
+                throw new Exception('Can not open source file for read');
             }
         }
 
-        $destination = fopen($this->destination, 'wb');
-        if (!$destination) {
-            throw new Exception('Can not open destination file for read');
+        $destination = $this->destination;
+        if(!is_resource($this->destination)) {
+            if (!file_exists($this->destination)) {
+                if (!touch($this->destination)) {
+                    throw new Exception('Destination file is not reachable');
+                }
+            }
+
+            $destination = fopen($this->destination, 'wb');
+            if (!$destination) {
+                throw new Exception('Can not open destination file for read');
+            }
         }
 
         while (!feof($source)) {
